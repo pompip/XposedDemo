@@ -14,10 +14,10 @@ public class ClassUtil {
      * getMethods()方法获取的是所有的public的函数，包括父类继承而来的
      * getDeclaredMethods()获取的是所有该类自己声明的方法，不问访问权限
      */
-    public static void printClassMethodMessage(Class c,String tag) {
+    public static void printClassMethodMessage(Class c, String tag) {
         //要获取类的信息  首先要获取类的类类型
         //获取类的名称
-        StringBuilder builder = new StringBuilder("类的名称是:" + c.getName()+"\n");
+        StringBuilder builder = new StringBuilder("类的名称是:" + c.getName() + "\n");
 
         Method[] ms = c.getMethods();//c.getDeclaredMethods()
         for (int i = 0; i < ms.length; i++) {
@@ -34,7 +34,7 @@ public class ClassUtil {
             builder.append(")").append("\n");
         }
 
-        Log.e(tag, "printClassMethodMessage: "+ builder.toString() );
+        Log.e(tag, "printClassMethodMessage: " + builder.toString());
     }
 
     /**
@@ -45,7 +45,7 @@ public class ClassUtil {
      * getFields()方法获取的是所有的public的成员变量的信息
      * getDeclaredFields获取的是该类自己声明的成员变量的信息
      */
-    public static void printFieldMessage(Class c,String tag) {
+    public static void printFieldMessage(Class c, String tag) {
 
         StringBuilder builder = new StringBuilder();
 
@@ -60,7 +60,7 @@ public class ClassUtil {
             builder.append(typeName + ": " + fieldName).append("\n");
         }
 
-        Log.e(tag, "printFieldMessage: " +builder.toString() );
+        Log.e(tag, "printFieldMessage: " + builder.toString());
     }
 
     /**
@@ -70,9 +70,9 @@ public class ClassUtil {
      * getConstructors获取所有的public的构造函数
      * getDeclaredConstructors得到所有的构造函数
      */
-    public static void printConMessage(Class c,String tag) {
+    public static void printConMessage(Class c, String tag) {
 
-     StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
         Constructor[] cs = c.getDeclaredConstructors();
         for (Constructor constructor : cs) {
@@ -84,12 +84,20 @@ public class ClassUtil {
             }
             builder.append(")");
         }
-        Log.e(tag, "printConMessage: " + builder.toString() );
+        Log.e(tag, "printConMessage: " + builder.toString());
     }
 
-    public static void printAll(Class c,String tag){
-        printConMessage(c,tag);
-        printFieldMessage(c,tag);
-        printClassMethodMessage(c,tag);
+    public static void printAll(Class c, String tag) {
+        Log.e(tag, "类的名称是:" + c.getName() + "  ,classLoader:" + c.getClassLoader().getClass().getName());
+        printConMessage(c, tag);
+        printFieldMessage(c, tag);
+        printClassMethodMessage(c, tag);
+    }
+
+    public static void printStack() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (int i = 0; i < stackTrace.length; i++) {
+            Log.e("chong", "statck : " + stackTrace[i].getClassName());
+        }
     }
 }
