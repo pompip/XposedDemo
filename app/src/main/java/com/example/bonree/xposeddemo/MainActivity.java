@@ -1,5 +1,6 @@
 package com.example.bonree.xposeddemo;
 
+import android.app.Instrumentation;
 import android.os.Debug;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

@@ -1,6 +1,8 @@
 package com.example.bonree.xposeddemo.xpose;
 
+import android.app.Activity;
 import android.app.Application;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
 import android.view.TextureView;
@@ -24,11 +26,17 @@ public class HookMain implements IXposedHookLoadPackage {
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam)  {
         try {
             if ("com.youku.phone".equals(lpparam.packageName)) {
-                XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
+                XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnResume", Activity.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        ClassLoader cl = ((Context) param.args[0]).getClassLoader();
 
+                        Object[] clazz = param.args;
+                        Activity activity = (Activity) clazz[0];
+//                        if(currentActivity == null && activity!=null) {
+                            //主activity
+
+                            ClassLoader cl = activity.getApplicationContext().getClassLoader();
+//                        }
 
                         XposedHelpers.findAndHookMethod(cl.getClass(), "loadClass", String.class, new XC_MethodHook() {
 
