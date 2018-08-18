@@ -17,7 +17,7 @@ public class ClassUtil {
     public static void printClassMethodMessage(Class c, String tag) {
         //要获取类的信息  首先要获取类的类类型
         //获取类的名称
-        StringBuilder builder = new StringBuilder("类的名称是:" + c.getName() + "\n");
+        StringBuilder builder = new StringBuilder();
 
         Method[] ms = c.getMethods();//c.getDeclaredMethods()
         for (int i = 0; i < ms.length; i++) {
@@ -31,7 +31,7 @@ public class ClassUtil {
             for (Class class1 : paramTypes) {
                 builder.append(class1.getName() + ",");
             }
-            builder.append(")").append("\n");
+            builder.deleteCharAt(builder.length() - 1).append(")").append("\n");
         }
 
         Log.e(tag, "printClassMethodMessage: " + builder.toString());
@@ -88,7 +88,13 @@ public class ClassUtil {
     }
 
     public static void printAll(Class c, String tag) {
-        Log.e(tag, "类的名称是:" + c.getName() + "  ,classLoader:" + c.getClassLoader().getClass().getName());
+
+        if (c.getClassLoader() == null) {
+            return;
+        }
+        Log.e(tag, "类的名称是:" + c.getName());
+        Log.e(tag, "  ,classLoader:" + c.getClassLoader().getClass().getName());
+
         printConMessage(c, tag);
         printFieldMessage(c, tag);
         printClassMethodMessage(c, tag);
