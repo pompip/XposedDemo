@@ -19,6 +19,8 @@ android {
         }
     }
 
+    buildOutputs {  }
+
 }
 
 dependencies {
