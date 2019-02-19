@@ -1,6 +1,11 @@
-plugins{
+plugins {
     id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-android-extensions")
 }
+//plugins{
+//    id("java")
+//}
 
 android {
     compileSdkVersion (27)
@@ -28,10 +33,15 @@ dependencies {
     implementation( "com.android.support:appcompat-v7:27.1.1")
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation("junit:junit:4.12")
+    testImplementation ("org.jetbrains.kotlin:kotlin-test-junit:1.3.21")
     androidTestImplementation("com.android.support.test:runner:1.0.2")
     androidTestImplementation("com.android.support.test.espresso:espresso-core:3.0.2")
 
+
     compileOnly("de.robv.android.xposed:api:82")
     compileOnly("de.robv.android.xposed:api:82:sources")
-    implementation(kotlin("stdlib", "1.2.41"))
+    implementation(kotlin("stdlib", "1.3.21"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.21")
+//    implementation ("com.google.android.exoplayer:exoplayer:2.9.0")
+
 }
