@@ -3,6 +3,7 @@ package com.example.bonree.xposeddemo.xpose;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.os.Build;
 import android.util.Log;
 
 import com.example.bonree.xposeddemo.xpose.HoodImp.YoukuHook;
@@ -20,8 +21,11 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookMain implements IXposedHookLoadPackage {
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
+        Log.e("chong","andleLoadPackage: chong");
+        XposedHelpers.setStaticObjectField(Build.class,Build.BOARD,new String("HTC"));
         hookActivity(lpparam);
         hookBaseDexClassLoader(lpparam);
     }
@@ -60,6 +64,16 @@ public class HookMain implements IXposedHookLoadPackage {
     }
 
     private static void hookActivity(final XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnCreate", Activity.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                Activity activity = (Activity) param.args[0];
+                ClassLoader cl = activity.getApplicationContext().getClassLoader();
+                Log.e("chong_main", "classLoad:" + cl.getClass().getName());
+                XposedHelpers.setStaticObjectField(Build.class,Build.BOARD,new String("HTC"));
+                hookMain(cl, lpparam.packageName);
+            }
+        });
         XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnResume", Activity.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
@@ -72,9 +86,9 @@ public class HookMain implements IXposedHookLoadPackage {
     }
 
     private static void hookMain(ClassLoader classLoader, String packageName) {
-        if ("com.youku.phone".equals(packageName)) {
-            YoukuHook.getInstance().hook(classLoader);
-        }
+//        if ("com.youku.phone".equals(packageName)) {
+//            YoukuHook.getInstance().hook(classLoader);
+//        }
     }
 
 }
