@@ -4,14 +4,19 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.example.bonree.xposeddemo.xpose.HoodImp.YoukuHook;
 import com.example.bonree.xposeddemo.xpose.util.ClassUtil;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import dalvik.system.BaseDexClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -24,10 +29,10 @@ public class HookMain implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
-        Log.e("chong","andleLoadPackage: chong");
-        XposedHelpers.setStaticObjectField(Build.class,Build.BOARD,new String("HTC"));
+        Log.e("chong", "andleLoadPackage: chong");
+        XposedHelpers.setStaticObjectField(Build.class, "BOARD", new String("HTC"));
         hookActivity(lpparam);
-        hookBaseDexClassLoader(lpparam);
+
     }
 
     private static void hookBaseDexClassLoader(final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -64,31 +69,86 @@ public class HookMain implements IXposedHookLoadPackage {
     }
 
     private static void hookActivity(final XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnCreate", Activity.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnCreate", Activity.class, Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 Activity activity = (Activity) param.args[0];
                 ClassLoader cl = activity.getApplicationContext().getClassLoader();
                 Log.e("chong_main", "classLoad:" + cl.getClass().getName());
-                XposedHelpers.setStaticObjectField(Build.class,Build.BOARD,new String("HTC"));
-                hookMain(cl, lpparam.packageName);
+
             }
         });
-        XposedHelpers.findAndHookMethod(Instrumentation.class, "callActivityOnResume", Activity.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Instrumentation.class, "callApplicationOnCreate", Application.class, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                Activity activity = (Activity) param.args[0];
-                ClassLoader cl = activity.getApplicationContext().getClassLoader();
-                Log.e("chong_main", "classLoad:" + cl.getClass().getName());
-                hookMain(cl, lpparam.packageName);
+            protected void beforeHookedMethod(MethodHookParam param) {
+                Application app = (Application) param.args[0];
+                ClassLoader cl = app.getClassLoader();
+                Log.e("chong_main", "callApplicationOnCreate:" + cl.getClass().getName());
+
+                try {
+                    hookMain(cl, lpparam.packageName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }
 
-    private static void hookMain(ClassLoader classLoader, String packageName) {
-//        if ("com.youku.phone".equals(packageName)) {
-//            YoukuHook.getInstance().hook(classLoader);
-//        }
+    private static void hookMain(final ClassLoader classLoader, String packageName) throws Exception {
+        if (packageName.equals("com.laowang7")) {
+            Log.e(TAG, "hookMain: start Hook baseApplication" );
+            Class<?> baseApplicationClasss = classLoader.loadClass("com.core.base.BaseApplication");
+            XposedHelpers.findAndHookMethod(baseApplicationClasss, "getDeviceUuid", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                    Class<?> stringUtilClass = classLoader.loadClass("com.core.util.StringUtil");
+                    Log.e(TAG, "hookMain: "+stringUtilClass.toString() );
+                    String uuidString = (String) XposedHelpers.callStaticMethod(stringUtilClass,"getMd5Of",UUID.randomUUID().toString());
+                    Log.e(TAG, "hookMain: "+uuidString );
+                    param.setResult(uuidString);
+                }
+            });
+            Log.e(TAG, "hookMain: mid Hook baseApplication" );
+            XposedHelpers.findAndHookMethod(baseApplicationClasss, "getOldDeviceUuid", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                    Class<?> stringUtilClass = classLoader.loadClass("com.core.util.StringUtil");
+                    Log.e(TAG, "hookMain: getOldDeviceUuid"+stringUtilClass.toString() );
+                    String uuidString = (String) XposedHelpers.callStaticMethod(stringUtilClass,"getMd5Of",UUID.randomUUID().toString());
+                    Log.e(TAG, "hookMain: getOldDeviceUuid"+uuidString );
+                    param.setResult(uuidString);
+                }
+            });
+
+            Log.e(TAG, "hookMain: end Hook baseApplication" );
+        }
     }
+
+    private String md5(String str){
+        try {
+            byte[] digest = MessageDigest.getInstance("MD5").digest(str.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder(digest.length * 2);
+            for (byte b : digest) {
+                byte b2 = (byte)( b & 255);
+                if (b2 < 16) {
+                    sb.append("0");
+                }
+                sb.append(Integer.toHexString(b2));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e2) {
+            e2.printStackTrace();
+            return null;
+        } catch (UnsupportedEncodingException e3) {
+            e3.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private static final String TAG = "chong";
 
 }

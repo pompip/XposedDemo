@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -163,5 +164,14 @@ public class ExampleUnitTest {
             }
 
        }
+   }
+
+   @Test
+    public void testUUID(){
+        UUID uuid = new UUID(22131423423231L,1111234232342342312L);
+       System.out.println(uuid.toString());
+
+       uuid = UUID.randomUUID();
+       System.out.println(uuid.toString());
    }
 }
