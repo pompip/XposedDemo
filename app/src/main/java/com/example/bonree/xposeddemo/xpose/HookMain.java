@@ -7,13 +7,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.bonree.xposeddemo.xpose.HoodImp.YoukuHook;
-import com.example.bonree.xposeddemo.xpose.util.ClassUtil;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;

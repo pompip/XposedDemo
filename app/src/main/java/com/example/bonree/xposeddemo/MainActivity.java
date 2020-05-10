@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity{
 
 
     }
+    void test(){
+
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
