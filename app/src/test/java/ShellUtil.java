@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Random;
 
 public class ShellUtil {
     @Test
@@ -34,5 +35,17 @@ public class ShellUtil {
             runningStatus = p.waitFor();
         } catch (InterruptedException e) {
         }
+    }
+
+    @Test
+    public void testRandom(){
+        double random ;
+        do {
+             random = Math.random();
+        }while (random<0.1);
+        random = random*1000000;
+
+        System.out.println(Double.valueOf(random).intValue());
+
     }
 }

@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.UUID;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -22,9 +23,13 @@ public class LaowangHook {
 
 
             Log.e(TAG, "hookMain: start Hook baseApplication3");
-            Class<?> baseApplicationClasss = classLoader.loadClass("com.core.base.BaseApplication");
+            final Class<?> baseApplicationClasss = classLoader.loadClass("com.core.base.BaseApplication");
             Log.e(TAG, "hookMain: start Hook baseApplication4");
             final Class<?> stringUtilClass = classLoader.loadClass("com.core.util.StringUtil");
+//            BaseApplication.setLogInUserInfo;
+//            XposedHelpers.callStaticMethod(baseApplicationClasss,"setLogInUserInfo","","","","");
+
+
             XposedHelpers.findAndHookMethod(baseApplicationClasss, "getDeviceUuid", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -59,15 +64,30 @@ public class LaowangHook {
                 }
             });
 
-//            Class<?> SharedUtilClass = XposedHelpers.findClass("com.core.util.SharedPreferencesUtil", classLoader);
-//            XposedBridge.hookAllMethods(SharedUtilClass, "setString", new XC_MethodReplacement() {
+
+            XposedBridge.hookAllMethods(baseApplicationClasss, "getLogInUserId", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Log.e(TAG,"getLogInUserId:"+param.getResult());
+
+//                    double random ;
+//                    do {
+//                        random = Math.random();
+//                    }while (random<0.1);
+//                    random = random*1000000;
 //
-//                @Override
-//                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-//                    Log.e(TAG, "setString:" + Arrays.toString(param.args));
-//                    return true;
-//                }
-//            });
+//                    String result = String.valueOf(Double.valueOf(random).intValue());
+//                    Log.e(TAG,"getLogInUserId2:"+result);
+//                    param.setResult(result);
+                }
+            });
+            Class<?> SharedUtilClass = XposedHelpers.findClass("com.core.model.Config", classLoader);
+            XposedBridge.hookAllMethods(SharedUtilClass, "getFreeTimeUrl", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Log.e(TAG,"getFreeTimeUrl:"+param.getResult());
+                }
+            });
 
             Log.e(TAG, "hookMain: end Hook baseApplication");
         } catch (Throwable e) {
